@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0f1923">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>ITサービスマネージャー 過去問</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0f1923;
+  --surface:  #1a2535;
+  --surface2: #223044;
+  --accent:   #38bdf8;
+  --accent2:  #0ea5e9;
+  --correct:  #22c55e;
+  --wrong:    #ef4444;
+  --text:     #e2eaf5;
+  --muted:    #7a9ab8;
+  --border:   rgba(56,189,248,0.15);
+  --mono:     'JetBrains Mono', monospace;
+  --sans:     'Noto Sans JP', sans-serif;
+  --radius:   14px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── Header ── */
+.header {
+  width: 100%;
+  max-width: 680px;
+  padding: 20px 20px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.header-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-family: var(--mono);
+}
+.header-stats {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ── Progress bar ── */
+.progress-wrap {
+  width: 100%;
+  max-width: 680px;
+  padding: 12px 20px 0;
+}
+.progress-bar {
+  height: 3px;
+  background: var(--surface2);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent2), var(--accent));
+  border-radius: 99px;
+  transition: width .4s cubic-bezier(.4,0,.2,1);
+}
+
+/* ── Main card ── */
+.main {
+  width: 100%;
+  max-width: 680px;
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Home screen ── */
+.home {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  text-align: center;
+  padding: 40px 0;
+}
+.home-badge {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  background: rgba(56,189,248,.1);
+  border: 1px solid var(--border);
+  padding: 4px 12px;
+  border-radius: 99px;
+  letter-spacing: .1em;
+}
+.home h1 {
+  font-size: clamp(22px, 5vw, 32px);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -.01em;
+}
+.home h1 span { color: var(--accent); }
+.home-desc {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.7;
+  max-width: 420px;
+}
+.mode-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+  max-width: 460px;
+}
+.mode-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 16px;
+  cursor: pointer;
+  transition: border-color .2s, background .2s, transform .15s;
+  text-align: left;
+}
+.mode-card:hover { border-color: var(--accent); background: var(--surface2); transform: translateY(-2px); }
+.mode-card:active { transform: translateY(0); }
+.mode-icon { font-size: 24px; margin-bottom: 10px; }
+.mode-name { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.mode-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.mode-count {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  margin-top: 10px;
+}
+.stats-row {
+  display: flex;
+  gap: 20px;
+}
+.stat-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 24px;
+  text-align: center;
+  flex: 1;
+}
+.stat-num { font-family: var(--mono); font-size: 28px; font-weight: 600; color: var(--accent); }
+.stat-label { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+/* ── Question card ── */
+.q-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.tag {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 99px;
+  border: 1px solid var(--border);
+  color: var(--accent);
+  background: rgba(56,189,248,.07);
+  letter-spacing: .05em;
+}
+.q-num { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.q-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+}
+.q-text {
+  font-size: 16px;
+  line-height: 1.85;
+  font-weight: 500;
+  white-space: pre-wrap;
+}
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.choice-btn {
+  width: 100%;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  line-height: 1.65;
+  transition: border-color .2s, background .2s, transform .1s;
+}
+.choice-btn:hover:not(:disabled) { border-color: var(--accent); background: var(--surface2); transform: translateX(3px); }
+.choice-btn:active:not(:disabled) { transform: translateX(0); }
+.choice-btn:disabled { cursor: default; }
+.choice-key {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  flex-shrink: 0;
+  width: 20px;
+}
+.choice-btn.correct { border-color: var(--correct); background: rgba(34,197,94,.1); }
+.choice-btn.wrong   { border-color: var(--wrong);   background: rgba(239,68,68,.1); }
+.choice-btn.correct .choice-key { color: var(--correct); }
+.choice-btn.wrong   .choice-key { color: var(--wrong); }
+
+/* ── Feedback ── */
+.feedback {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+  animation: fadeUp .3s ease;
+}
+.feedback.show { display: flex; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+.feedback-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 700;
+}
+.feedback-header.ok  { color: var(--correct); }
+.feedback-header.ng  { color: var(--wrong); }
+.feedback-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.feedback-dot.ok { background: var(--correct); }
+.feedback-dot.ng { background: var(--wrong); }
+.feedback-body { font-size: 13px; color: var(--muted); line-height: 1.8; }
+.feedback-answer { font-size: 13px; color: var(--text); margin-top: 4px; }
+.feedback-answer strong { color: var(--accent); }
+
+/* ── Next button ── */
+.btn-row { display: flex; gap: 10px; }
+.btn {
+  flex: 1;
+  padding: 15px;
+  border-radius: var(--radius);
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: opacity .2s, transform .1s;
+  letter-spacing: .02em;
+}
+.btn:active { transform: scale(.98); }
+.btn-primary { background: var(--accent); color: #0f1923; }
+.btn-primary:hover { opacity: .9; }
+.btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── Result screen ── */
+.result {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  text-align: center;
+  padding: 40px 0;
+}
+.result-score {
+  font-family: var(--mono);
+  font-size: 72px;
+  font-weight: 600;
+  line-height: 1;
+}
+.result-score span { font-size: 32px; color: var(--muted); }
+.result-label { font-size: 15px; color: var(--muted); margin-top: 8px; }
+.result-grade {
+  font-size: 18px;
+  font-weight: 700;
+  padding: 8px 24px;
+  border-radius: 99px;
+}
+.result-grade.pass { background: rgba(34,197,94,.15); color: var(--correct); border: 1px solid rgba(34,197,94,.3); }
+.result-grade.fail { background: rgba(239,68,68,.1); color: var(--wrong); border: 1px solid rgba(239,68,68,.2); }
+.result-detail { color: var(--muted); font-size: 14px; line-height: 1.8; }
+.result-actions { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 360px; }
+
+/* ── Review ── */
+.review-list { display: flex; flex-direction: column; gap: 16px; }
+.review-item {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  border-left: 3px solid var(--border);
+}
+.review-item.ok { border-left-color: var(--correct); }
+.review-item.ng { border-left-color: var(--wrong); }
+.review-q { font-size: 13px; line-height: 1.7; margin-bottom: 10px; white-space: pre-wrap; }
+.review-ans { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+.review-ans .ok { color: var(--correct); }
+.review-ans .ng { color: var(--wrong); }
+
+/* scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 99px; }
+
+@media (max-width: 480px) {
+  .mode-grid { grid-template-columns: 1fr; }
+  .stats-row { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="header-title">ITSM // 過去問</span>
+  <span class="header-stats" id="header-stats"></span>
+</div>
+<div class="progress-wrap" id="progress-wrap" style="display:none">
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+</div>
+
+<div class="main" id="app"></div>
+
+<script>
+// =====================================================
+// 問題データ（午前I・午前II サンプル）
+// questions.json を読み込む形に後で差し替え可能
+// =====================================================
+const QUESTIONS = [
+  {
+    id: "AM1-2024-01",
+    year: "2024年春",
+    section: "午前I",
+    q: "ITサービスマネジメントにおいて、サービスデスクが提供すべき主要な機能はどれか。",
+    choices: ["A. システムの設計と開発", "B. 利用者からの問合せや障害の一次受付", "C. サーバのハードウェア保守", "D. セキュリティポリシーの策定"],
+    answer: 1,
+    explanation: "サービスデスクはITILにおける「サービスオペレーション」の主要機能であり、利用者からの問合せ・インシデントの一次受付（シングルポイントオブコンタクト）を担います。設計・開発や保守はそれぞれ別のプロセスが担当します。"
+  },
+  {
+    id: "AM1-2024-02",
+    year: "2024年春",
+    section: "午前I",
+    q: "ITIL 4 において、サービス価値システム（SVS）の構成要素として正しいものはどれか。",
+    choices: ["A. サービスポートフォリオ・サービスカタログ・サービスパイプライン", "B. ガバナンス・サービス価値連鎖・継続的改善", "C. インシデント管理・問題管理・変更管理", "D. 可用性管理・容量管理・IT サービス継続性管理"],
+    answer: 1,
+    explanation: "ITIL 4 のサービス価値システム（SVS）は「指導原則・ガバナンス・サービス価値連鎖・プラクティス・継続的改善」の5要素で構成されます。選択肢Bはガバナンス・サービス価値連鎖・継続的改善が含まれるため最も近い正解です。"
+  },
+  {
+    id: "AM2-2024-01",
+    year: "2024年春",
+    section: "午前II",
+    q: "インシデント管理プロセスにおける「エスカレーション」の説明として適切なものはどれか。",
+    choices: ["A. インシデントを根本原因まで分析し恒久対策を実施すること", "B. 解決できないインシデントをより高い技術レベルや管理層へ引き継ぐこと", "C. インシデントを変更管理プロセスへ移行すること", "D. インシデントの発生をサービスカタログに記録すること"],
+    answer: 1,
+    explanation: "エスカレーションとは、一次対応で解決できないインシデントをより高い専門知識や権限を持つ担当者・グループへ引き継ぐことです。機能的エスカレーション（技術）と階層的エスカレーション（管理）の2種類があります。"
+  },
+  {
+    id: "AM2-2024-02",
+    year: "2024年春",
+    section: "午前II",
+    q: "変更管理において「緊急変更」を承認する組織として正しいものはどれか。",
+    choices: ["A. サービスデスク", "B. 緊急変更諮問委員会（ECAB）", "C. 問題管理チーム", "D. キャパシティ管理者"],
+    answer: 1,
+    explanation: "緊急変更（Emergency Change）は、通常の変更諮問委員会（CAB）を経る時間がない場合に、縮小された緊急変更諮問委員会（ECAB: Emergency CAB）が承認を行います。ECABは必要最小限のメンバーで迅速に意思決定します。"
+  },
+  {
+    id: "AM1-2023-01",
+    year: "2023年秋",
+    section: "午前I",
+    q: "SLA（サービスレベルアグリーメント）に関する説明として適切なものはどれか。",
+    choices: ["A. IT サービス提供者と外部サプライヤ間の合意文書", "B. IT サービス提供者と顧客間でサービス目標を定めた合意文書", "C. IT 部門内の各チーム間の合意文書", "D. 政府機関が定めるサービス基準の法的文書"],
+    answer: 1,
+    explanation: "SLAはITサービス提供者と顧客（ビジネス部門）の間で締結する合意文書で、提供するサービスの目標値（可用性・応答時間など）を規定します。IT部門内はOLA（運用レベル合意）、外部サプライヤとはUC（契約）を使います。"
+  },
+  {
+    id: "AM2-2023-01",
+    year: "2023年秋",
+    section: "午前II",
+    q: "問題管理における「既知のエラー（Known Error）」の説明として正しいものはどれか。",
+    choices: ["A. まだ原因が特定されていない繰り返し発生するインシデント", "B. 根本原因が特定され、回避策または恒久対策が文書化された問題", "C. サービスデスクが解決できずクローズしたインシデント", "D. 変更によって新たに発生したシステム障害"],
+    answer: 1,
+    explanation: "既知のエラー（Known Error）とは、根本原因が分析・特定された問題であり、回避策（Workaround）または恒久対策が文書化されているものです。既知のエラーデータベース（KEDB）に登録され、同様のインシデント対応を迅速化します。"
+  },
+  {
+    id: "AM1-2023-02",
+    year: "2023年秋",
+    section: "午前I",
+    q: "サービスの可用性を表す計算式として正しいものはどれか。ここで、MTBF はサービスが正常に稼働した平均時間、MTTR はサービスが停止してから回復するまでの平均時間とする。",
+    choices: ["A. MTBF ÷ (MTBF + MTTR) × 100（%）", "B. MTTR ÷ (MTBF + MTTR) × 100（%）", "C. (MTBF - MTTR) ÷ MTBF × 100（%）", "D. MTBF ÷ MTTR × 100（%）"],
+    answer: 0,
+    explanation: "可用性（Availability）= MTBF ÷（MTBF + MTTR）× 100 です。MTBF（Mean Time Between Failures）は障害間の平均稼働時間、MTTR（Mean Time To Repair）は平均修復時間で、合計が全体の時間となります。"
+  },
+  {
+    id: "AM2-2022-01",
+    year: "2022年春",
+    section: "午前II",
+    q: "ITサービス継続性管理（ITSCM）の目的として最も適切なものはどれか。",
+    choices: ["A. 日常的なインシデントを迅速に解決し、サービスを正常に戻す", "B. 災害や重大障害時でも、合意したレベルでITサービスを継続・回復できることを確保する", "C. ITサービスの変更を計画的・安全に実施する", "D. 新しいITサービスを顧客の要求に基づき設計・開発する"],
+    answer: 1,
+    explanation: "ITサービス継続性管理（ITSCM）は、災害・重大障害など予期しない事態が発生した場合でも、SLAで合意したレベルのITサービスを継続または迅速に回復できることを目的とします。BCP（事業継続計画）のIT版と位置付けられます。"
+  }
+];
+
+// =====================================================
+// State
+// =====================================================
+let state = {
+  screen: 'home',     // home | quiz | result | review
+  mode: null,         // 'all' | 'AM1' | 'AM2' | 'wrong'
+  queue: [],
+  idx: 0,
+  answered: false,
+  chosen: null,
+  log: [],            // { id, correct, chosen }
+  stats: loadStats()
+};
+
+function loadStats() {
+  try { return JSON.parse(localStorage.getItem('itsm_stats')) || { total: 0, correct: 0, history: [] }; }
+  catch { return { total: 0, correct: 0, history: [] }; }
+}
+function saveStats() {
+  localStorage.setItem('itsm_stats', JSON.stringify(state.stats));
+}
+
+// =====================================================
+// Render
+// =====================================================
+function render() {
+  const app = document.getElementById('app');
+  const pw = document.getElementById('progress-wrap');
+  const hs = document.getElementById('header-stats');
+  pw.style.display = 'none';
+  hs.textContent = '';
+
+  if (state.screen === 'home')   { app.innerHTML = renderHome(); }
+  if (state.screen === 'quiz')   { app.innerHTML = renderQuiz(); pw.style.display = 'block'; updateProgress(); }
+  if (state.screen === 'result') { app.innerHTML = renderResult(); }
+  if (state.screen === 'review') { app.innerHTML = renderReview(); }
+
+  attachEvents();
+}
+
+function renderHome() {
+  const s = state.stats;
+  const pct = s.total > 0 ? Math.round(s.correct / s.total * 100) : 0;
+  const wrongIds = getWrongIds();
+  return `
+    <div class="home">
+      <div>
+        <div class="home-badge">IPA // IT Service Manager</div>
+        <h1 style="margin-top:16px">午前<span>過去問</span><br>トレーニング</h1>
+        <p class="home-desc" style="margin-top:12px">午前I（応用情報レベル四択）・午前II（専門四択）<br>を繰り返し解いて合格力を鍛える</p>
+      </div>
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-num">${s.total}</div>
+          <div class="stat-label">累計回答数</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" style="color:${pct>=60?'var(--correct)':'var(--wrong)'}">${pct}<span style="font-size:18px;color:var(--muted)">%</span></div>
+          <div class="stat-label">正解率</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" style="color:var(--wrong)">${wrongIds.length}</div>
+          <div class="stat-label">苦手問題数</div>
+        </div>
+      </div>
+      <div class="mode-grid">
+        <div class="mode-card" data-action="start" data-mode="all">
+          <div class="mode-icon">📋</div>
+          <div class="mode-name">全問ランダム</div>
+          <div class="mode-desc">午前I・IIをシャッフルして出題</div>
+          <div class="mode-count">${QUESTIONS.length} 問</div>
+        </div>
+        <div class="mode-card" data-action="start" data-mode="AM1">
+          <div class="mode-icon">📘</div>
+          <div class="mode-name">午前Ⅰのみ</div>
+          <div class="mode-desc">応用情報レベルの四択問題</div>
+          <div class="mode-count">${QUESTIONS.filter(q=>q.section==='午前I').length} 問</div>
+        </div>
+        <div class="mode-card" data-action="start" data-mode="AM2">
+          <div class="mode-icon">📗</div>
+          <div class="mode-name">午前Ⅱのみ</div>
+          <div class="mode-desc">ITサービスマネージャー専門</div>
+          <div class="mode-count">${QUESTIONS.filter(q=>q.section==='午前II').length} 問</div>
+        </div>
+        <div class="mode-card" data-action="start" data-mode="wrong" ${wrongIds.length===0?'style="opacity:.4;pointer-events:none"':''}>
+          <div class="mode-icon">🎯</div>
+          <div class="mode-name">苦手問題</div>
+          <div class="mode-desc">間違えた問題だけを集中練習</div>
+          <div class="mode-count">${wrongIds.length} 問</div>
+        </div>
+      </div>
+      ${s.total > 0 ? `<button class="btn btn-ghost" style="max-width:200px" data-action="review">📊 最後のセッションを見直す</button>` : ''}
+    </div>`;
+}
+
+function renderQuiz() {
+  const q = state.queue[state.idx];
+  const keys = ['ア', 'イ', 'ウ', 'エ'];
+  const feedbackClass = state.answered ? (state.chosen === q.answer ? 'ok' : 'ng') : '';
+
+  let choicesHtml = q.choices.map((c, i) => {
+    let cls = '';
+    if (state.answered) {
+      if (i === q.answer) cls = 'correct';
+      else if (i === state.chosen) cls = 'wrong';
+    }
+    return `<button class="choice-btn ${cls}" data-action="answer" data-idx="${i}" ${state.answered ? 'disabled' : ''}>
+      <span class="choice-key">${keys[i]}</span>
+      <span>${c.replace(/^[ア-エ]\. /, '')}</span>
+    </button>`;
+  }).join('');
+
+  const feedbackHtml = state.answered ? `
+    <div class="feedback show">
+      <div class="feedback-header ${feedbackClass}">
+        <span class="feedback-dot ${feedbackClass}"></span>
+        ${state.chosen === q.answer ? '正解！' : '不正解'}
+      </div>
+      <div class="feedback-answer">正解：<strong>${keys[q.answer]}（${q.choices[q.answer].replace(/^[ア-エ]\. /,'')}）</strong></div>
+      <div class="feedback-body">${q.explanation}</div>
+    </div>` : `<div class="feedback"></div>`;
+
+  const nextLabel = state.idx < state.queue.length - 1 ? '次の問題 →' : '結果を見る';
+
+  return `
+    <div class="q-meta">
+      <span class="tag">${q.section}</span>
+      <span class="tag">${q.year}</span>
+      <span class="q-num">${state.idx + 1} / ${state.queue.length}</span>
+    </div>
+    <div class="q-card">
+      <div class="q-text">${q.q}</div>
+    </div>
+    <div class="choices">${choicesHtml}</div>
+    ${feedbackHtml}
+    ${state.answered ? `<div class="btn-row"><button class="btn btn-primary" data-action="next">${nextLabel}</button></div>` : ''}
+  `;
+}
+
+function renderResult() {
+  const total = state.log.length;
+  const correct = state.log.filter(l => l.correct).length;
+  const pct = Math.round(correct / total * 100);
+  const pass = pct >= 60;
+  return `
+    <div class="result">
+      <div>
+        <div class="result-score" style="color:${pass?'var(--correct)':'var(--wrong)'}">${pct}<span>%</span></div>
+        <div class="result-label">${correct} 問正解 / ${total} 問中</div>
+      </div>
+      <div class="result-grade ${pass?'pass':'fail'}">${pass ? '🎉 合格ライン達成！' : '📚 もう一息！ 60% 目標'}</div>
+      <div class="result-detail">
+        累計: ${state.stats.total} 問 ／ 通算正解率: ${state.stats.total>0 ? Math.round(state.stats.correct/state.stats.total*100) : 0}%
+      </div>
+      <div class="result-actions">
+        <button class="btn btn-primary" data-action="review">解答を見直す</button>
+        <button class="btn btn-ghost" data-action="home">ホームへ戻る</button>
+      </div>
+    </div>`;
+}
+
+function renderReview() {
+  const keys = ['ア', 'イ', 'ウ', 'エ'];
+  const items = state.log.map(l => {
+    const q = QUESTIONS.find(q => q.id === l.id);
+    const ok = l.correct;
+    return `<div class="review-item ${ok?'ok':'ng'}">
+      <div class="review-q"><span class="tag" style="font-size:10px;padding:2px 8px;margin-bottom:8px;display:inline-block">${q.section} ${q.year}</span><br>${q.q}</div>
+      <div class="review-ans">
+        あなたの回答: <span class="${ok?'ok':'ng'}">${keys[l.chosen]}（${q.choices[l.chosen].replace(/^[ア-エ]\. /,'')}）</span>
+        ${!ok ? `　正解: <span class="ok">${keys[q.answer]}（${q.choices[q.answer].replace(/^[ア-エ]\. /,'')}）</span>` : ''}
+      </div>
+      ${!ok ? `<div class="feedback-body" style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.7">${q.explanation}</div>` : ''}
+    </div>`;
+  }).join('');
+  return `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <h2 style="font-size:16px;font-weight:700">解答一覧</h2>
+      <button class="btn btn-ghost" style="flex:none;padding:8px 16px;font-size:13px" data-action="home">← ホーム</button>
+    </div>
+    <div class="review-list">${items}</div>`;
+}
+
+// =====================================================
+// Events
+// =====================================================
+function attachEvents() {
+  document.querySelectorAll('[data-action]').forEach(el => {
+    el.addEventListener('click', handleAction);
+  });
+}
+
+function handleAction(e) {
+  const el = e.currentTarget;
+  const action = el.dataset.action;
+
+  if (action === 'start') {
+    startQuiz(el.dataset.mode);
+  } else if (action === 'answer') {
+    if (state.answered) return;
+    const idx = parseInt(el.dataset.idx);
+    answer(idx);
+  } else if (action === 'next') {
+    nextQuestion();
+  } else if (action === 'result') {
+    state.screen = 'result';
+    render();
+  } else if (action === 'review') {
+    state.screen = 'review';
+    render();
+  } else if (action === 'home') {
+    state.screen = 'home';
+    render();
+  }
+}
+
+// =====================================================
+// Logic
+// =====================================================
+function startQuiz(mode) {
+  let pool = QUESTIONS;
+  if (mode === 'AM1') pool = QUESTIONS.filter(q => q.section === '午前I');
+  if (mode === 'AM2') pool = QUESTIONS.filter(q => q.section === '午前II');
+  if (mode === 'wrong') pool = QUESTIONS.filter(q => getWrongIds().includes(q.id));
+  state.queue = shuffle([...pool]);
+  state.idx = 0;
+  state.answered = false;
+  state.chosen = null;
+  state.log = [];
+  state.mode = mode;
+  state.screen = 'quiz';
+  render();
+}
+
+function answer(chosen) {
+  const q = state.queue[state.idx];
+  const correct = chosen === q.answer;
+  state.answered = true;
+  state.chosen = chosen;
+  state.log.push({ id: q.id, correct, chosen });
+  state.stats.total++;
+  if (correct) state.stats.correct++;
+  // track wrong answers per question
+  let wrong = {};
+  try { wrong = JSON.parse(localStorage.getItem('itsm_wrong') || '{}'); } catch {}
+  if (!correct) wrong[q.id] = (wrong[q.id] || 0) + 1;
+  else delete wrong[q.id];
+  localStorage.setItem('itsm_wrong', JSON.stringify(wrong));
+  saveStats();
+  render();
+}
+
+function nextQuestion() {
+  if (state.idx < state.queue.length - 1) {
+    state.idx++;
+    state.answered = false;
+    state.chosen = null;
+    render();
+  } else {
+    state.screen = 'result';
+    render();
+  }
+}
+
+function updateProgress() {
+  const pct = ((state.idx + (state.answered ? 1 : 0)) / state.queue.length * 100).toFixed(1);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('header-stats').textContent = `${state.idx + 1}/${state.queue.length}`;
+}
+
+function getWrongIds() {
+  try {
+    const wrong = JSON.parse(localStorage.getItem('itsm_wrong') || '{}');
+    return Object.keys(wrong);
+  } catch { return []; }
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// =====================================================
+// Boot
+// =====================================================
+render();
+</script>
+</body>
+</html>
